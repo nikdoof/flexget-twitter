@@ -3,6 +3,11 @@ flexget-twitter
 
 Twitter plugin for Flexget
 
+Requirements
+------------
+
+This plugin requires [tweepy](https://github.com/tweepy/tweepy) to run.
+
 Setup
 -----
 
