@@ -4,25 +4,22 @@ from flexget.plugin import PluginError, register_plugin
 from flexget import manager 
 from flexget.event import event 
 from flexget.utils.template import render_from_task, get_template, RenderError 
-from flexget import validator 
 
 log = logging.getLogger('twitter') 
 
-def options_validator():
-    twitter = validator.factory('dict')
-    twitter.accept('boolean', key='active')
-    twitter.accept('text', key='template')
-    twitter.accept('text', key='consumerkey', required=True)
-    twitter.accept('text', key='consumersecret', required=True)
-    twitter.accept('text', key='accesskey', required=True)
-    twitter.accept('text', key='accesssecret', required=True)
-    return twitter 
-
-
-def prepare_config(config):
-    config.setdefault('active', True)
-    config.setdefault('template', "Flexget: {{ title }} accepted")
-    return config 
+schema = {
+    'type': 'object',
+    'properties': {
+        'active': {'type': 'boolean', 'default': True},
+        'template': {'type': 'string', 'default': 'Flexget: {{ title }} accepted'},
+        'consumerkey': {'type': 'string'},
+        'consumersecret': {'type': 'string'},
+        'accesskey': {'type': 'string'},
+        'accesssecret': {'type': 'string'}
+    },
+    'required': ['consumerkey', 'consumersecret', 'accesskey', 'accesssecret'],
+    'additionalProperties': False
+}
 
 @event('manager.execute.started') 
 def setup(manager):
@@ -33,9 +30,6 @@ def setup(manager):
         import tweepy
     except ImportError:
         raise PluginError('The Twtter plugin requires the tweepy module to be installed, please install it before using.')
-        
-    config = prepare_config(manager.config['twitter'])
-    config['global'] = True
     global task_content
     task_content = {}
     print config
@@ -49,14 +43,8 @@ def setup(manager):
 
 
 class OutputTwitter(object):
-    def validator(self):
-        v = options_validator()
-        v.accept('boolean', key='global')
-        return v
 
     def on_task_output(self, task, config):
-
-        config = prepare_config(config)
 
         # Initialize twitter client
         import tweepy
@@ -81,4 +69,4 @@ class OutputTwitter(object):
                 log.warning('Unable to post tweet: %s' % e) 
 
 register_plugin(OutputTwitter, 'twitter', api_ver=2) 
-manager.register_config_key('twitter', options_validator)
+manager.register_config_key('twitter', schema)
