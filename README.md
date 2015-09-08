@@ -3,6 +3,8 @@ flexget-twitter
 
 Twitter plugin for Flexget
 
+**This plugin is in the process of being merged into Flexget base, check the [pull request](https://github.com/Flexget/Flexget/pull/564) for a up to date version.**
+
 Requirements
 ------------
 
